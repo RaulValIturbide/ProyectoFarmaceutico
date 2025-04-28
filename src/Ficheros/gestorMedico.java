@@ -125,5 +125,42 @@ public class gestorMedico {
         }
         return false;
     }
+    /**
+     * Este metodo sirve para buscar un medico y si lo encuentra lo devuelve
+     * @param idMedico el id del medico por el que buscará
+     * @return devolverá el objeto medico si lo encuentra o null si no lo encuentra
+     */
+    public static Medico encontrarMedico(int idMedico) {
+        Medico medicoEncontrado = null;
+        ObjectInputStream entrada = null;
+
+        try {
+            entrada = new ObjectInputStream(new FileInputStream(rutaArchivo));
+
+            while (true) {
+                Medico aux = (Medico) entrada.readObject();
+                if (aux.getIdMedico() == idMedico) {
+                    medicoEncontrado = aux;
+                }
+
+            }
+
+        } catch (EOFException ex) {
+            System.out.println("");
+        } catch (ClassNotFoundException cnf) {
+            System.out.println("Clase no encontrada buscando al medico");
+        } catch (IOException io) {
+            System.out.println("Error fatal encontrando al medico");
+        } finally {
+            if (entrada != null) {
+                try {
+                    entrada.close();
+                } catch (IOException ex) {
+                    System.out.println("Fallo total al intentar cerrar el flujo de datos del medico");
+                }
+            }
+        }
+        return medicoEncontrado;
+    }
 
 }

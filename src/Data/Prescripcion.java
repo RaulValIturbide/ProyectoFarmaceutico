@@ -7,16 +7,20 @@ import Exception.IdMedicoNoExistenteException;
 import java.util.ArrayList;
 import java.util.Scanner;
 import Ficheros.gestorMedicamentos;
+import Ficheros.gestorMedico;
+import Persona.Medico;
+import Persona.Paciente;
+import java.io.ObjectInputStream;
 /**
  *
  * @author baske
  */
 public class Prescripcion {
-    
+ 
+    private Medico medico;
     private int idMedico;
-    private String nombreMedico;
+    private Paciente paciente;
     private String idPaciente;
-    private String nombrePaciente;
     private String emailPaciente;
     
     ArrayList<Dosis> receta = new ArrayList<>();//conjunto de dosis 
@@ -24,36 +28,54 @@ public class Prescripcion {
     
     public Prescripcion() throws IdMedicoNoExistenteException{
         idMedico = Menu.addIdMedico();
-        menuPrescripcion();
+        medico = gestorMedico.encontrarMedico(idMedico);
+        menuPrescripcion(medico);
         
 
     }
     
-    private void mostrarLista(){
-        for(Dosis d : receta){
-            System.out.println(d.toString());
+    private void mostrarLista() {
+        if (receta.isEmpty()) {
+            System.out.println("Todavia no has añadido ninguna dosis a esta prescripción");
+        } else {
+            for (Dosis d : receta) {
+                System.out.println(d.toString());
+            }
         }
     }
-    private void menuPrescripcion(){
+
+    private void menuPrescripcion(Medico medico) {
         Scanner teclado = new Scanner(System.in);
         boolean correcto = false;
-        
-        do{
-            System.out.println("1-mostrar lista de medicamentos\n2-Crear medicamentos");
+
+        do {
+            System.out.println("1-Añadir dosis a la prescripción\n2-Leer las dosis actuales\n3-Ver prescripcion\n\n0-Firmar receta");
+            System.out.print(">>");
             int usuario = teclado.nextInt();
-            
-            switch(usuario){
+
+            switch (usuario) {
                 case 1:
-                    mostrarLista();
-                    break;
-                case 2:
                     receta.add(new Dosis());
                     break;
+                case 2:
+                      mostrarLista();
+                    break;
+                case 3:
+                    System.out.println(medico.mostrarDatos());
+                    break;
+                case 0:
+                    if (receta.isEmpty()) {
+                        System.out.println("No puedes firmar la prescripcion si no has añadido ninguna dosis");
+                    } else {
+                        System.out.println("Enviar Prescripcion TODO");
+                    }
             }
-        
-        }while(!correcto);
+
+        } while (!correcto);
     }
     
+   
+
     
     
 }
