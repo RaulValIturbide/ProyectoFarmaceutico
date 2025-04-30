@@ -34,9 +34,9 @@ public class Main {
                                                    1-Medicamentos
                                                    2-Lotes
                                                    3-Prescripciones
-                                        
-                                                   
+   
                                                    0-Volver atras""");
+                                System.out.print(">>");
                                 usuario = teclado.nextInt();
                                 switch (usuario) {
                                     case 1:
@@ -86,8 +86,7 @@ public class Main {
                                    2-Ver lista medicamentos 
                                    3-Buscar medicamento
                                    
-                                   0-Volver atras
-                                   """);
+                                   0-Volver atras""");
                 System.out.print(">>");
                 usuario = teclado.nextInt();
 
@@ -175,9 +174,9 @@ public class Main {
 
             switch (usuario) {
                 case 1:
-                    try{
-                    Prescripcion p1 = new Prescripcion();
-                    }catch(IdMedicoNoExistenteException ex){
+                    try {
+                        Prescripcion p1 = new Prescripcion();
+                    } catch (IdMedicoNoExistenteException ex) {
                         System.out.println("Error: " + ex.getMessage());
                     }
                     break;

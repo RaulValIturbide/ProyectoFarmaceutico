@@ -98,5 +98,38 @@ public class gestorPaciente {
             System.out.println(p.mostrarDatos());
         }
     }
+    
+    public static Paciente encontrarPaciente(String idPaciente) {
+        Paciente pacienteEncontrado = null;
+        ObjectInputStream entrada = null;
+
+        try {
+            entrada = new ObjectInputStream(new FileInputStream(rutaArchivo));
+
+            while (true) {
+                Paciente aux = (Paciente) entrada.readObject();
+                if (aux.getDni().equals(idPaciente)) {
+                    pacienteEncontrado = aux;
+                }
+
+            }
+
+        } catch (EOFException ex) {
+            System.out.println("");
+        } catch (ClassNotFoundException cnf) {
+            System.out.println("Clase no encontrada buscando al paciente");
+        } catch (IOException io) {
+            System.out.println("Error fatal encontrando al paciente");
+        } finally {
+            if (entrada != null) {
+                try {
+                    entrada.close();
+                } catch (IOException ex) {
+                    System.out.println("Fallo total al intentar cerrar el flujo de datos del paciente");
+                }
+            }
+        }
+        return pacienteEncontrado;
+    }
          
 }

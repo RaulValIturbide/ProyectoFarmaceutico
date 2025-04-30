@@ -3,37 +3,39 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package Data;
+
 import Exception.IdMedicoNoExistenteException;
 import java.util.ArrayList;
 import java.util.Scanner;
 import Ficheros.gestorMedicamentos;
 import Ficheros.gestorMedico;
+import Ficheros.gestorPaciente;
 import Persona.Medico;
 import Persona.Paciente;
 import java.io.ObjectInputStream;
+
 /**
  *
  * @author baske
  */
 public class Prescripcion {
- 
+
     private Medico medico;
     private int idMedico;
     private Paciente paciente;
     private String idPaciente;
     private String emailPaciente;
-    
+
     ArrayList<Dosis> receta = new ArrayList<>();//conjunto de dosis 
-    
-    
-    public Prescripcion() throws IdMedicoNoExistenteException{
+
+    public Prescripcion() throws IdMedicoNoExistenteException {
         idMedico = Menu.addIdMedico();
         medico = gestorMedico.encontrarMedico(idMedico);
-        menuPrescripcion(medico);
-        
+        paciente = gestorPaciente.encontrarPaciente(idPaciente);
+        menuPrescripcion(medico, paciente);
 
     }
-    
+
     private void mostrarLista() {
         if (receta.isEmpty()) {
             System.out.println("Todavia no has añadido ninguna dosis a esta prescripción");
@@ -44,7 +46,7 @@ public class Prescripcion {
         }
     }
 
-    private void menuPrescripcion(Medico medico) {
+    private void menuPrescripcion(Medico medico, Paciente paciente) {
         Scanner teclado = new Scanner(System.in);
         boolean correcto = false;
 
@@ -58,10 +60,11 @@ public class Prescripcion {
                     receta.add(new Dosis());
                     break;
                 case 2:
-                      mostrarLista();
+                    mostrarLista();
                     break;
                 case 3:
                     System.out.println(medico.mostrarDatos());
+                    System.out.println(paciente.mostrarDatos());
                     break;
                 case 0:
                     if (receta.isEmpty()) {
@@ -73,9 +76,5 @@ public class Prescripcion {
 
         } while (!correcto);
     }
-    
-   
 
-    
-    
 }

@@ -24,9 +24,9 @@ public class BBDD {
 
     /**
      * Este metodo pretende introducir la base de datos base en el programa,
-     * solo se iniciará cuando el archivo "BBDD" no exista, es decir, la
-     * primera vez que se inicie el programa y a partir de entonces no se
-     * volverán a introducir
+     * solo se iniciará cuando el archivo "BBDD" no exista, es decir, la primera
+     * vez que se inicie el programa y a partir de entonces no se volverán a
+     * introducir
      */
     public static void crearBBDD() {
         File carpeta = new File(rutaCarpeta);
