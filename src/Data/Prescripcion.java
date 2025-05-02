@@ -1,39 +1,36 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package Data;
 
-import Exception.IdMedicoNoExistenteException;
+import Exception.IdNoExistenteException;
+import Ficheros.gestorLotes;
 import java.util.ArrayList;
 import java.util.Scanner;
-import Ficheros.gestorMedicamentos;
-import Ficheros.gestorMedico;
 import Ficheros.gestorPaciente;
 import Persona.Medico;
 import Persona.Paciente;
-import java.io.ObjectInputStream;
+import java.io.Serializable;
 
 /**
  *
  * @author baske
  */
-public class Prescripcion {
+public class Prescripcion implements Serializable {
 
-    private Medico medico;
-    private int idMedico;
-    private Paciente paciente;
-    private String idPaciente;
-    private String emailPaciente;
+    private Medico medico; //El medico que creará la prescripcion
+    private int idMedico; //El id del medico
+    private Paciente paciente; //El paciente al que se le recetará la prescripcion
+    private String idPaciente; //El id del paciente
+    private String emailPaciente; //El email del paciente
+    private String notaFarmaceutico;
 
     ArrayList<Dosis> receta = new ArrayList<>();//conjunto de dosis 
 
-    public Prescripcion() throws IdMedicoNoExistenteException {
-        idMedico = Menu.addIdMedico();
-        medico = gestorMedico.encontrarMedico(idMedico);
-        paciente = gestorPaciente.encontrarPaciente(idPaciente);
+    public Prescripcion(Medico medico) throws IdNoExistenteException {
+        this.medico = medico;
+        paciente = gestorPaciente.encontrarPaciente(Menu.addIdPaciente());
+        idMedico = medico.getIdMedico();
+        idPaciente = paciente.getDni();
+        emailPaciente = paciente.getEmail();
         menuPrescripcion(medico, paciente);
-
     }
 
     private void mostrarLista() {
@@ -46,6 +43,13 @@ public class Prescripcion {
         }
     }
 
+    /**
+     * Este metodo gestionará la creacion de dosis de la prescripcion hasta que
+     * se firme la receta
+     *
+     * @param medico el medico que firma la receta
+     * @param paciente el paciente al que se le entrega la receta
+     */
     private void menuPrescripcion(Medico medico, Paciente paciente) {
         Scanner teclado = new Scanner(System.in);
         boolean correcto = false;
@@ -61,20 +65,90 @@ public class Prescripcion {
                     break;
                 case 2:
                     mostrarLista();
+                    System.out.println("");
                     break;
                 case 3:
                     System.out.println(medico.mostrarDatos());
                     System.out.println(paciente.mostrarDatos());
+                    System.out.println("");
+                    mostrarLista();
                     break;
                 case 0:
                     if (receta.isEmpty()) {
-                        System.out.println("No puedes firmar la prescripcion si no has añadido ninguna dosis");
+                        System.out.println("No puedes firmar la prescripción si no has añadido ninguna dosis\n");
                     } else {
-                        System.out.println("Enviar Prescripcion TODO");
+                        System.out.println("Enviando prescripción...");
+                        correcto = true;
                     }
             }
 
         } while (!correcto);
+    }
+    
+
+
+    public Medico getMedico() {
+        return medico;
+    }
+
+    public void setMedico(Medico medico) {
+        this.medico = medico;
+    }
+
+    public String getNotaFarmaceutico() {
+        return notaFarmaceutico;
+    }
+
+    public void setNotaFarmaceutico(String notaFarmaceutico) {
+        this.notaFarmaceutico = notaFarmaceutico;
+    }
+    
+
+    public int getIdMedico() {
+        return idMedico;
+    }
+
+    public void setIdMedico(int idMedico) {
+        this.idMedico = idMedico;
+    }
+
+    public Paciente getPaciente() {
+        return paciente;
+    }
+
+    public void setPaciente(Paciente paciente) {
+        this.paciente = paciente;
+    }
+
+    public String getIdPaciente() {
+        return idPaciente;
+    }
+
+    public void setIdPaciente(String idPaciente) {
+        this.idPaciente = idPaciente;
+    }
+
+    public String getEmailPaciente() {
+        return emailPaciente;
+    }
+
+    public void setEmailPaciente(String emailPaciente) {
+        this.emailPaciente = emailPaciente;
+    }
+
+    public ArrayList<Dosis> getReceta() {
+        return receta;
+    }
+
+    public void setReceta(ArrayList<Dosis> receta) {
+        this.receta = receta;
+    }
+
+    @Override
+    public String toString() {
+        return "Info Médico: " + medico.mostrarDatos()
+                + "\nInfo Paciente: " + paciente.mostrarDatos()
+                + "\nRecetas: \n" + receta.toString();
     }
 
 }

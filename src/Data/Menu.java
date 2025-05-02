@@ -4,6 +4,7 @@ import java.util.Scanner;
 import java.util.InputMismatchException;
 import Exception.*;
 import Ficheros.gestorMedico;
+import Ficheros.gestorPaciente;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 
@@ -87,7 +88,7 @@ public class Menu {
         int usuario = 0;
         do {
             try {
-                System.out.println("Introduzca la cantidad de stock del medicamento que está¡ introduciendo");
+                System.out.println("Introduzca la cantidad de stock del medicamento que está introduciendo");
                 System.out.print(">>");
                 usuario = teclado.nextInt();
                 if (usuario < 0) {
@@ -136,9 +137,10 @@ public class Menu {
         } while (!correcto);
         return usuario;
     }
-    
+
     /**
      * Metodo que establece la cantidad que el medico va a recetarle al paciente
+     *
      * @return devuelve el numero que va a recetarle
      */
     public static int addStockDosis() {
@@ -161,86 +163,27 @@ public class Menu {
     }
 
     /**
-     * Metodo para establecer si el medicamento es o no es de alto Costo
+     * Este metodo crea una pregunta para saber si es algo true o false
      *
-     * @return será¡ true si es de alto costo o false si no lo es
+     * @param frase la pregunta que se hará para la que el usuario debe
+     * responder true o false
+     * @return
      */
-    public static boolean isAltoCosto() {
+    public static boolean esCierto(String frase) {
         boolean correcto = false;
-        boolean altoCosto = false;
+        boolean resultado = false;
         String usuario = null;
         do {
             try {
-                System.out.println("Se trata de un producto de alto costo? Y/N");
+                System.out.println(frase + " Y/N");
                 System.out.print(">>");
                 usuario = teclado.nextLine();
 
                 if (usuario.equalsIgnoreCase("Y")) {
-                    altoCosto = true;
+                    resultado = true;
                     correcto = true;
                 } else if (usuario.equalsIgnoreCase("N")) {
-                    altoCosto = false;
-                    correcto = true;
-                } else {
-                    throw new TrueFalseException("Introduzca \"Y\" o \"N\"");
-                }
-
-            } catch (TrueFalseException tfe) {
-                System.out.println("Error: " + tfe.getMessage());
-
-            }
-        } while (!correcto);
-        return altoCosto;
-    }
-    
-        public static boolean isCronico() {
-        boolean correcto = false;
-        boolean cronico = false;
-        String usuario = null;
-        do {
-            try {
-                System.out.println("Se trata de una dosis cronica? Y/N");
-                System.out.print(">>");
-                usuario = teclado.nextLine();
-
-                if (usuario.equalsIgnoreCase("Y")) {
-                    cronico = true;
-                    correcto = true;
-                } else if (usuario.equalsIgnoreCase("N")) {
-                    cronico = false;
-                    correcto = true;
-                } else {
-                    throw new TrueFalseException("Introduzca \"Y\" o \"N\"");
-                }
-
-            } catch (TrueFalseException tfe) {
-                System.out.println("Error: " + tfe.getMessage());
-
-            }
-        } while (!correcto);
-        return cronico;
-    }
-
-    /**
-     * Metodo para establecer si el medicamento es o no es restringido
-     *
-     * @return será true si es restringido o false si no lo es
-     */
-    public static boolean isRestringido() {
-        boolean correcto = false;
-        boolean restringido = false;
-        String usuario = null;
-        do {
-            try {
-                System.out.println("Se trata de un producto restringido? Y/N");
-                System.out.print(">>");
-                usuario = teclado.nextLine();
-
-                if (usuario.equalsIgnoreCase("Y")) {
-                    restringido = true;
-                    correcto = true;
-                } else if (usuario.equalsIgnoreCase("N")) {
-                    restringido = false;
+                    resultado = false;
                     correcto = true;
                 } else {
                     throw new TrueFalseException("Introduzca \"Y\" o \"N\"");
@@ -250,7 +193,7 @@ public class Menu {
                 System.out.println("Error: " + tfe.getMessage());
             }
         } while (!correcto);
-        return restringido;
+        return resultado;
     }
 
     /**
@@ -259,7 +202,7 @@ public class Menu {
      *
      * @return devolverá la fecha que haya introducido el usuario
      */
-    public static LocalDate addFecha(String frase1,String preguntaDia,String preguntaMes,String preguntaYear,String fechaIncorrecta) {
+    public static LocalDate addFecha(String frase1, String preguntaDia, String preguntaMes, String preguntaYear, String fechaIncorrecta) {
         int dia = 0;
         int mes = 0;
         int anio = 0;
@@ -328,7 +271,7 @@ public class Menu {
             System.out.format("""
                           Nombre: %s
                           Clasificación: %s
-                          Stock má­nimo: %d
+                          Stock máximo: %d
                           Alto costo: %b
                           Restringido: %b
                           """,
@@ -350,18 +293,24 @@ public class Menu {
         return confirmar;
 
     }
-    
+
     /**
-     * Este metodo nos permite dejar que el usuario (supuesto medico) escriba su id en la consola,
-     * el metodo primero se asegurará de que el usuario escriba solo digitos y que sean 4, si no lo hace
-     * entrará en loop hasta que lo haga, despues de esto, el metodo buscará en un metodo complementario si el id escrito por el 
-     * medico se encuentra en la base de datos, si lo hace nos devolvera el numero de id para escribirlo en la prescripcion,
-     * si no lo encuentra lanzará una excepcion para cancelar la construccion del objeto "Prescripcion" y aconsejará al medico que si no está
-     * registrado lo haga en el menu
-     * @return nos devuelve o bien el numero de id del medico o una excepcion ya que nunca deberia de poder llegar al -1 
-     * @throws IdMedicoNoExistenteException la excepcion que se lanzará si el metodo no encuentra un id igual que el proporcionado por el usuario
+     * Este metodo nos permite dejar que el usuario (supuesto medico) escriba su
+     * id en la consola, el metodo primero se asegurará de que el usuario
+     * escriba solo digitos y que sean 4, si no lo hace entrará en loop hasta
+     * que lo haga, despues de esto, el metodo buscará en un metodo
+     * complementario si el id escrito por el medico se encuentra en la base de
+     * datos, si lo hace nos devolvera el numero de id para escribirlo en la
+     * prescripcion, si no lo encuentra lanzará una excepcion para cancelar la
+     * construccion del objeto "Prescripcion" y aconsejará al medico que si no
+     * está registrado lo haga en el menu
+     *
+     * @return nos devuelve o bien el numero de id del medico o una excepcion ya
+     * que nunca deberia de poder llegar al -1
+     * @throws IdMedicoNoExistenteException la excepcion que se lanzará si el
+     * metodo no encuentra un id igual que el proporcionado por el usuario
      */
-    public static int addIdMedico() throws IdMedicoNoExistenteException {
+    public static int addIdMedico() throws IdNoExistenteException {
         String usuario = null;
         String expReg = "^\\d{4}$";
         boolean correcto = false;
@@ -376,7 +325,7 @@ public class Menu {
                 if (gestorMedico.MedicoExisteEnLaBBDD(idMed)) {
                     return idMed;
                 } else {
-                    throw new IdMedicoNoExistenteException("Este id no existe en ningún medico de nuestra BBDD si no estas registrado, prueba a hacerlo en el menú principal.\nCancelando receta...\n\n");
+                    throw new IdNoExistenteException("Este id no existe en ningún medico de nuestra BBDD si no estas registrado, prueba a hacerlo en el menú principal.\nCancelando prescripción...\n\n");
                 }
             } else {
                 System.out.println("El id de medico son 4 digitos, pruebe de nuevo");
@@ -384,8 +333,45 @@ public class Menu {
         } while (!correcto);
         return -1;
     }
-    
-    public static void limpiarBuffer(){
+
+    /**
+     * Este metedo permite al medico una vez que ha entrado en su cuenta el
+     * introducir el id del paciente, el "dni" se ha simplificado a 3 numeros y
+     * una letra por motivos de simpleza, si el medico no escribe un dni acorde
+     * con el formato establecido (3 numeros y 1 mayus) le pedirá nuevamente que
+     * lo intente, si el dni posee el formato necesario pero no existe en la
+     * base de datos se cancelará la prescripción dejando al medico que registre
+     * al usuario en el menu principal, si se encuentra un dni con esos datos
+     * introducidos se devolverán en formato String
+     *
+     * @return devuelve el id de un paciente existente en la base de datos o se
+     * cancela su construccion
+     * @throws IdNoExistenteException esta excepcion permite cancelar la
+     * creación del constructor
+     */
+    public static String addIdPaciente() throws IdNoExistenteException {
+        boolean correcto = false;
+        String usuario = null;
+        String expReg = "\\d{3}[A-Z]";
+
+        do {
+            System.out.println("Introduce el dni del paciente");
+            System.out.print(">>");
+            usuario = teclado.nextLine();
+            if (!usuario.matches(expReg)) {
+                System.out.println("Introduce un dni con un formato correcto \"111Z\"");
+            } else if (!gestorPaciente.pacienteExisteEnLaBBDD(usuario)) {
+                throw new IdNoExistenteException("Este dni no se encuentra en la base de datos, cancelando prescripcion...");
+            } else {
+                correcto = true;
+            }
+        } while (!correcto);
+
+        return usuario;
+
+    }
+
+    public static void limpiarBuffer() {
         teclado.nextLine();
     }
 

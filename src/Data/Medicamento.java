@@ -52,8 +52,8 @@ public class Medicamento implements Serializable, Comparable<Medicamento> {
             }
             clasificacion = Menu.addClasificacion();
             stockMinimo = Menu.addStockMinimo();
-            altoCosto = Menu.isAltoCosto();
-            restringido = Menu.isRestringido();
+            altoCosto = Menu.esCierto("¿Se trata de un producto de alto coste?");
+            restringido = Menu.esCierto("¿Se trata de un medicamento restringido?");
             correcto = Menu.confirmar(nombre, clasificacion, stockMinimo, altoCosto, restringido);
         } while (!correcto);
         codigo = gestorCodigoMedicamento.generarCodMed();
@@ -133,6 +133,6 @@ public class Medicamento implements Serializable, Comparable<Medicamento> {
                 + "\nStock minimo: " + stockMinimo
                 + "\nAlto costo: " + altoCosto
                 + "\nRestringido: " + restringido
-                + "\n\n";
+                + "\n";
     }
 }

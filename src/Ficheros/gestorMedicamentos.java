@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Scanner;
 import java.util.TreeSet;
@@ -17,7 +18,7 @@ import java.util.TreeSet;
  * Esta clase tiene como objetivo gestionar los medicamentos, es decir, escribir
  * medicamentos en el archivo y leerlos de él
  */
-public class gestorMedicamentos {
+public class gestorMedicamentos implements Serializable {
 
     private TreeSet<Medicamento> lista = new TreeSet<>();
 
@@ -117,9 +118,8 @@ public class gestorMedicamentos {
      * treeSet para poder modificarlos
      */
     public void generarTreeSet() {
-        String ruta = "src/inventario/listaMedicamentos";
         ObjectInputStream entrada = null;
-        File archivo = new File(ruta);
+        File archivo = new File(rutaArchivo);
         if (!archivo.exists()) {
             System.out.println("Pruebe a introducir un medicamento en la base de datos e intentelo de nuevo");
         } else {
@@ -134,7 +134,7 @@ public class gestorMedicamentos {
             } catch (FileNotFoundException ex) {
                 System.out.println("Ruta no encontrada");
             } catch (EOFException eo) {
-                System.out.println("Lista completa:\n");
+                System.out.println("");
             } catch (ClassNotFoundException cnf) {
                 System.out.println("Error: fin de objetos");
             } catch (IOException io) {
@@ -176,28 +176,26 @@ public class gestorMedicamentos {
      * compararlo con el dato introducido por el usuario y sacaremos la info del
      * medicamento si se encuentra en la Base de datos
      */
-    public void buscarMedicamentoIterador() {
+    public Medicamento buscarMedicamentoIterador() {
         Scanner teclado = new Scanner(System.in);
         boolean encontrado = false;
+        Medicamento buscado = null;
+        generarTreeSet();
         Iterator<Medicamento> iterador = lista.iterator();
 
         System.out.println("Nombre o codigo del medicamento que estas buscando");
         System.out.print(">>");
         String usuario = teclado.nextLine();
-
         do {
             Medicamento aux = iterador.next();
             String nombreMed = aux.getNombre();
             String codigoMed = String.valueOf(aux.getCodigo());
 
             if (nombreMed.equalsIgnoreCase(usuario) || codigoMed.equalsIgnoreCase(usuario)) {
+                buscado = aux;
                 encontrado = true;
-                System.out.println("\nInfo del medicamento:\n" + aux.toString());
             }
         } while (!encontrado && iterador.hasNext());
-
-        if (!encontrado) {
-            System.out.println("\nNo existe ningun medicamento con ese Nombre/Codigo\n");
-        }
+        return buscado;
     }
 }
