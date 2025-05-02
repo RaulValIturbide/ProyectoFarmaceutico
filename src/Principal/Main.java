@@ -112,7 +112,7 @@ public class Main {
                         break;
                     case 3:
                         medicamentoGS.generarTreeSet();
-                        Medicamento aux = medicamentoGS.buscarMedicamentoIterador();
+                        Medicamento aux = medicamentoGS.buscarMedicamentoIterador(Menu.buscarMedicamento());
                         if(aux != null){
                         System.out.println("\nInfo del medicamento:\n" + aux.toString() + "Stock total del medicamento: " + lotesGS.stockTotal(aux.getCodigo()) + " cajas\n");
                         }else{
@@ -159,8 +159,8 @@ public class Main {
                         lotesGS.mostrarLista();
                         break;
                     case 3:
-                        int total = lotesGS.stockTotal(1001);
-                        System.out.println(total);
+                        //Metodo que devuelva la informacion de un lote en particular
+                        
                         break;
                     case 4:
                         lotesGS.generarAlertaManual();
@@ -196,9 +196,9 @@ public class Main {
                 teclado.nextLine();
                 System.out.println("¿Alguna nota para el médico?");
                 String nota = teclado.nextLine();
+                System.out.println("Enviando mensaje...");
                 listaNoRevisadas.getFirst().setNotaFarmaceutico(nota);//Establecemos en la prescripcion una nota para el medico
-                
-                gs.prescripcionRevisada(listaNoRevisadas.getFirst());//Aqui vamos a comprobar si reune los requisitos para ser aceptada o no
+                //Tenemos que enviarla a revisadas
                 listaNoRevisadas.removeFirst();//Eliminamos la prescripcion de la lista
                 gs.escribirArrayList(listaNoRevisadas);//Volvemos a escribir la lista en el archivo para que machaque la anterior y ya no exista la 1ª
             }
