@@ -128,11 +128,17 @@ public class gestorPrescripcion implements comiteFarmaceutico {
                                     + d.getNombre() + " el día " + d.getPeriodo() + "\n");
                         }
                         //Se envia la prescripcion a Revisadas y se retira el stock que toque
-                    } else {                       
                         for (Dosis d : listaDosis) {
-                            lotesGS.restarStock(d.getMedicamento(),d.getCantidad());
+                            lotesGS.restarStock(d.getMedicamento(), d.getCantidad());
                         }
+                        System.out.println("Eliminando stock del almacen...");
+
+                    } else {
                         //Se envia la prescripcion a Revisadas y se retira el stock que toque
+                        for (Dosis d : listaDosis) {
+                            lotesGS.restarStock(d.getMedicamento(), d.getCantidad());
+                        }
+                        System.out.println("Eliminando stock del almacen...");
                     }
                 } else {
                     System.out.println("Prescripción rechazada por el comite");
@@ -149,12 +155,19 @@ public class gestorPrescripcion implements comiteFarmaceutico {
                         System.out.println("\nEnviando mensaje al correo electronico del paciente:" + p.getEmailPaciente() + " para que venga a recibir su nueva dosis\nde "
                                 + d.getNombre() + " el día " + d.getPeriodo() + "\n");
                     }
+
                     //Se envia la prescripcion a Revisadas y se retira el stock que toque
-                } else {
                     for (Dosis d : listaDosis) {
                         lotesGS.restarStock(d.getMedicamento(), d.getCantidad());
                     }
+                    System.out.println("Eliminando stock del almacén...");
+                } else {
                     //Se envia la prescripcion a Revisadas y se retira el stock que toque
+                    for (Dosis d : listaDosis) {
+                        lotesGS.restarStock(d.getMedicamento(), d.getCantidad());
+                    }
+                    System.out.println("Eliminando stock del almacén...");
+
                 }
 
             }
@@ -224,8 +237,6 @@ public class gestorPrescripcion implements comiteFarmaceutico {
     }
 
     public ArrayList<Prescripcion> generarListaPrescripcion() {
-        File archivo = new File(rutaArchivoNoRevisada);
-
         ObjectInputStream entrada = null;
 
         try {
@@ -245,6 +256,15 @@ public class gestorPrescripcion implements comiteFarmaceutico {
         } catch (IOException ex) {
             System.out.println("ERROR FATAL");
             ex.printStackTrace();
+        }finally{
+            if(entrada != null){
+                try{
+                entrada.close();
+                }catch(IOException ex){
+                    System.out.println("Error fatal intentando cerrar el flujo de datos ");
+                    ex.printStackTrace();
+                }
+            }
         }
 
         return getPrescripcionNoRevisada();
@@ -287,7 +307,7 @@ public class gestorPrescripcion implements comiteFarmaceutico {
         Random random = new Random();
         LocalDate hoy = LocalDate.now();
         boolean decision = false;
-        if (p.getReceta().getFirst().getMedicamento().isRestringido()) {//Si la primera medicacion de la prescripción es restringida dicen no
+        if (p.getReceta().getFirst().getMedicamento().isRestringido() && hoy.lengthOfMonth() == 30) {//Si la primera medicacion de la prescripción es restringida  y el mes es largo dicen no
             decision = false;
         } else if (hoy.lengthOfMonth() == 28) { //Si es febrero dicen si
             decision = true;
