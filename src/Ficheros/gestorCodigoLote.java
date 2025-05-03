@@ -19,12 +19,13 @@ import java.io.IOException;
 public class gestorCodigoLote {
 
     private static final String rutaArchivo = "src/inventario/codigoLotes";
-    
-    
+
     /**
-     * Este metodo genera un archivo cuyo contenido es un int como 1001 y va aumentando de 1 en 1 cada vez qeu se usa para garantizar
-     * que cada medicamento posee un codigo independiente
-     * @return 
+     * Este metodo genera un archivo cuyo contenido es un int como 1001 y va
+     * aumentando de 1 en 1 cada vez qeu se usa para garantizar que cada
+     * medicamento posee un codigo independiente
+     *
+     * @return
      */
     public static int generarCodLote() {
         File archivo = new File(rutaArchivo);
@@ -48,6 +49,7 @@ public class gestorCodigoLote {
         } finally {
             if (salida != null) {
                 try {
+                    salida.flush();
                     salida.close();
                 } catch (IOException ex) {
                     System.out.println("Fallo al intentar cerrar el flujo de salida");
@@ -58,11 +60,15 @@ public class gestorCodigoLote {
 
         return numero;
     }
-    
+
     /**
-     * Este metodo privado es usado por el generador para saber cual es el anterior numero y poder darselo al lote
+     * Este metodo privado es usado por el generador para saber cual es el
+     * anterior numero y poder darselo al lote
+     *
      * @param ruta la ruta del archivo donde se encuentra el contador
-     * @return devolverá el numero que toque en el contador o -1 si el nombre del medicamento no existe y por lo tanto no se puede hacer un lote sobre él
+     * @return devolverá el numero que toque en el contador o -1 si el nombre
+     * del medicamento no existe y por lo tanto no se puede hacer un lote sobre
+     * él
      */
     private static int lectorCodMed(File ruta) {
         int nuevoNumero = -1;

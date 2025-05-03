@@ -20,12 +20,11 @@ public class Prescripcion implements Serializable {
     private Paciente paciente; //El paciente al que se le recetará la prescripcion
     private String idPaciente; //El id del paciente
     private String emailPaciente; //El email del paciente
-    private String notaFarmaceutico;
 
     ArrayList<Dosis> receta = new ArrayList<>();//conjunto de dosis 
 
-    public Prescripcion(Medico medico) throws IdNoExistenteException {
-        this.medico = medico;
+    public Prescripcion(Medico med) throws IdNoExistenteException {
+        this.medico = med;
         paciente = gestorPaciente.encontrarPaciente(Menu.addIdPaciente());
         idMedico = medico.getIdMedico();
         idPaciente = paciente.getDni();
@@ -84,8 +83,6 @@ public class Prescripcion implements Serializable {
 
         } while (!correcto);
     }
-    
-
 
     public Medico getMedico() {
         return medico;
@@ -95,14 +92,6 @@ public class Prescripcion implements Serializable {
         this.medico = medico;
     }
 
-    public String getNotaFarmaceutico() {
-        return notaFarmaceutico;
-    }
-
-    public void setNotaFarmaceutico(String notaFarmaceutico) {
-        this.notaFarmaceutico = notaFarmaceutico;
-    }
-    
 
     public int getIdMedico() {
         return idMedico;
@@ -148,7 +137,7 @@ public class Prescripcion implements Serializable {
     public String toString() {
         return "Info Médico: " + medico.mostrarDatos()
                 + "\nInfo Paciente: " + paciente.mostrarDatos()
-                + "\nRecetas: \n" + receta.toString();
+                + "\nRecetas: \n" + receta.toString() + "\n";
     }
 
 }

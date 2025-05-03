@@ -11,7 +11,6 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.Iterator;
-import java.util.Scanner;
 import java.util.TreeSet;
 
 /**
@@ -21,6 +20,7 @@ import java.util.TreeSet;
 public class gestorMedicamentos implements Serializable {
 
     private TreeSet<Medicamento> lista = new TreeSet<>();
+
 
     private static final String rutaCarpeta = "src/Inventario";
     private static final String rutaArchivo = rutaCarpeta + "/listaMedicamentos";
@@ -54,6 +54,7 @@ public class gestorMedicamentos implements Serializable {
         } finally {
             if (salida != null) {
                 try {
+                    salida.flush();
                     salida.close();
                 } catch (IOException ex) {
                     System.out.println("Error al cerrar el flujo de saldia");
@@ -175,17 +176,15 @@ public class gestorMedicamentos implements Serializable {
      * sin necesidad de recorrerla entera, convertiremos el codigo a String para
      * compararlo con el dato introducido por el usuario y sacaremos la info del
      * medicamento si se encuentra en la Base de datos
+     *
+     * @param usuario el nombre o codigo del medicamento que se esta buscando
+     * @return devuelve el medicamento si existe o null si no lo hace
      */
-    public Medicamento buscarMedicamentoIterador() {
-        Scanner teclado = new Scanner(System.in);
+    public Medicamento buscarMedicamentoIterador(String usuario) {
         boolean encontrado = false;
         Medicamento buscado = null;
         generarTreeSet();
         Iterator<Medicamento> iterador = lista.iterator();
-
-        System.out.println("Nombre o codigo del medicamento que estas buscando");
-        System.out.print(">>");
-        String usuario = teclado.nextLine();
         do {
             Medicamento aux = iterador.next();
             String nombreMed = aux.getNombre();
@@ -198,4 +197,26 @@ public class gestorMedicamentos implements Serializable {
         } while (!encontrado && iterador.hasNext());
         return buscado;
     }
+    
+    /**
+     * Este metodo pretende buscar en la lista de medicamentos y comparar el stock minimo de cada medicamento con el 
+     * metodo complemetario del gestor de lotes "stockTotal" para cada medicamento, si el stockMinimo es superior al 
+     * stock total entonces se lanzará una alerta en el sistema que informará de los medicamentos que se encuentran 
+     * en infra Stock
+     */
+    public void alertaStockMinimo(){
+        gestorLotes lotesGS = new gestorLotes(); //Primero necesitamos el gestor de lotes para calcular el stocktotal de cada medicamento
+        generarTreeSet(); //Lanzamos este metodo complementario para crear el treeset 
+        
+        for(Medicamento m: lista){
+            int stockActual = lotesGS.stockTotal(m.getCodigo());
+            if(m.getStockMinimo() >= stockActual ){
+                System.out.println("¡ALERTA DE STOCK MINIMO!");
+                System.out.println("El medicamento: " + m.getNombre() +" con codigo " + m.getCodigo() + " se encuentra con un stock por debajo del mínimo.");
+                System.out.println("\tStock actual del medicamento: " + stockActual);
+                System.out.println("\tStock minimo recomendable: " + m.getStockMinimo()+"\n");
+            }
+        }
+    }
+    
 }

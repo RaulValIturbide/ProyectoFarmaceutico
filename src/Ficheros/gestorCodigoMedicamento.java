@@ -13,12 +13,14 @@ import java.io.DataInputStream;
 import java.io.FileInputStream;
 
 /**
- *Este metodo gestiona la creacion de un codigo personal para cada medicamento que se almacenará en un archivo para mantener la persistencia
+ * Este metodo gestiona la creacion de un codigo personal para cada medicamento
+ * que se almacenará en un archivo para mantener la persistencia
  */
 public class gestorCodigoMedicamento {
-    
-    private static final String rutaCarpeta = "src/Inventario"; 
+
+    private static final String rutaCarpeta = "src/Inventario";
     private static final String rutaArchivo = rutaCarpeta + "/codigoMedicamento";
+
     /**
      * Este metodo crea una carpeta que gestionará un numero para darle un
      * codigo que nunca se repetirá a cada medicamento
@@ -31,7 +33,7 @@ public class gestorCodigoMedicamento {
         DataOutputStream salida = null;
         int numero = 1001; //Empezamos con este numero por defecto
         try {
-            if(!carpeta.exists()){
+            if (!carpeta.exists()) {
                 carpeta.mkdirs();
             }
             if (!archivo.exists()) {
@@ -51,6 +53,7 @@ public class gestorCodigoMedicamento {
         } finally {
             if (salida != null) {
                 try {
+                    salida.flush();
                     salida.close();
                 } catch (IOException ex) {
                     System.out.println("Fallo al intentar cerrar el flujo de salida");
@@ -63,7 +66,8 @@ public class gestorCodigoMedicamento {
     }
 
     /**
-     * Este metodo es complementario a carpetaCodMed, permite leer el archivo y devolver el numero que hay escrito
+     * Este metodo es complementario a carpetaCodMed, permite leer el archivo y
+     * devolver el numero que hay escrito
      *
      * @param ruta
      * @return
@@ -91,8 +95,5 @@ public class gestorCodigoMedicamento {
         }
         return nuevoNumero;
     }
-    
-    
-    
 
 }

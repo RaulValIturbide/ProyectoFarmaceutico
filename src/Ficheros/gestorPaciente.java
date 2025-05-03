@@ -1,6 +1,4 @@
-
 package Ficheros;
-
 
 import Persona.Paciente;
 import java.io.EOFException;
@@ -18,20 +16,22 @@ import java.util.ArrayList;
  * @author baske
  */
 public class gestorPaciente {
-    
-     ArrayList<Paciente> listaPaciente = new ArrayList<>();
-     
+
+    ArrayList<Paciente> listaPaciente = new ArrayList<>();
+
     static String rutaCarpeta = "src/Inventario/Personas";
     static String rutaArchivo = rutaCarpeta + "/listaPacientes";
 
     /**
-     * Este metodo permite escribir un paciente en el archivo indicado para la lista de pacientes
+     * Este metodo permite escribir un paciente en el archivo indicado para la
+     * lista de pacientes
+     *
      * @param p el paciente que se escribirá
      */
     public static void escribirPaciente(Paciente p) {
         File carpeta = new File(rutaCarpeta);
         File archivo = new File(rutaArchivo);
-        
+
         ObjectOutputStream salida = null;
 
         if (!carpeta.exists()) {
@@ -49,6 +49,7 @@ public class gestorPaciente {
             System.out.println("ERROR FATAL: en la creacion del paciente");
         } finally {
             try {
+                salida.flush();
                 salida.close();
 
             } catch (IOException ex) {
@@ -57,15 +58,15 @@ public class gestorPaciente {
         }
 
     }
-        
-        
+
     public void addPaciente(Paciente p) {
         listaPaciente.add(p);
     }
-        
-        /**
-         * Este metodo toma los pacientes escritos en el fichero y los escribe en el array list para poder tratarlos
-         */
+
+    /**
+     * Este metodo toma los pacientes escritos en el fichero y los escribe en el
+     * array list para poder tratarlos
+     */
     public void generarArrayList() {
         String ruta = "src/inventario/Personas/listaPacientes";
         ObjectInputStream entrada = null;
@@ -98,17 +99,19 @@ public class gestorPaciente {
         }
 
     }
-    
-    public void mostrarLista(){
-        for(Paciente p : listaPaciente){
+
+    public void mostrarLista() {
+        for (Paciente p : listaPaciente) {
             System.out.println(p.mostrarDatos());
         }
     }
-    
+
     /**
-     * Este metodo busca el id de un paciente en la lista y lo devuelve si existe
+     * Este metodo busca el id de un paciente en la lista y lo devuelve si
+     * existe
+     *
      * @param idPaciente el id del paciente que buscamos
-     * @return  devolverá el objeto paciente con el mismo id o null si no existe
+     * @return devolverá el objeto paciente con el mismo id o null si no existe
      */
     public static Paciente encontrarPaciente(String idPaciente) {
         Paciente pacienteEncontrado = null;
@@ -134,6 +137,7 @@ public class gestorPaciente {
         } finally {
             if (entrada != null) {
                 try {
+                    
                     entrada.close();
                 } catch (IOException ex) {
                     System.out.println("Fallo total al intentar cerrar el flujo de datos del paciente");
@@ -142,10 +146,11 @@ public class gestorPaciente {
         }
         return pacienteEncontrado;
     }
-    
-    
+
     /**
-     * Este metodo busca en la "bbdd" y comprueba si un paciente con el id dado por parametro existe o no
+     * Este metodo busca en la "bbdd" y comprueba si un paciente con el id dado
+     * por parametro existe o no
+     *
      * @param dni el id del paciente
      * @return devolverá true si existe o false si no
      */
@@ -183,5 +188,5 @@ public class gestorPaciente {
         }
         return encontrado;
     }
-         
+
 }

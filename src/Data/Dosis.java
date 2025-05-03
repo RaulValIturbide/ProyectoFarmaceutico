@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import java.io.Serializable;
 
 public class Dosis implements Serializable {
-
+    
     private String nombre;//Nombre del medicamento
     private int idMed;
     private Medicamento medicamento;
@@ -17,7 +17,8 @@ public class Dosis implements Serializable {
     public Dosis() {
         boolean correcto = false;
         do {
-            medicamento = gs.buscarMedicamentoIterador();
+            String med = Menu.buscarMedicamento();
+            medicamento = gs.buscarMedicamentoIterador(med);
             if ( medicamento == null || !gestorMedicamentos.MedicamentoExisteEnLaBBDD(medicamento.getNombre())) {
                 System.out.println("Ese medicamento no existe, pruebe con uno que esté en la base de datos");
             } else {
@@ -28,6 +29,8 @@ public class Dosis implements Serializable {
                 cronico = Menu.esCierto("¿Se trata de una dosis crónica?");
                 if (cronico) {
                     periodo = Menu.addFecha("Vamos a introducir el dia en el que el usuario recibirá la siguiente dosis", "Cual será el dia de la siguiente dosis?", "Cual será el mes de la siguiente dosis?", "Cual será el año de la siguiente dosis?", "Introduzca una fecha superior al dia de hoy e intentelo de nuevo");
+                }else{
+                    periodo = null;
                 }
                 correcto = true;
             }

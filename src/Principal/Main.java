@@ -6,22 +6,23 @@ import Exception.MedicamentoInexistenteException;
 import Exception.MedicamentoYaExistenteException;
 import Ficheros.*;
 import Persona.Medico;
-import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Main {
-    
+
     public static void main(String[] args) {
-        
+
         Scanner teclado = new Scanner(System.in);
         boolean endProgram = false;//booleano que gestionara el momento en el que se cierre el programa
         boolean endLoop = false;//booleano que gestionará el ciclo de los menus principales
         int usuario = 0;
-        gestorMedico listaMed = new gestorMedico();
-        gestorPaciente listaPaciente = new gestorPaciente();
+        gestorLotes lotesGS = new gestorLotes();
+        gestorMedicamentos medGS = new gestorMedicamentos();
         BBDD.crearBBDD();
-        
+        gestorPrescripcion gs = new gestorPrescripcion();
+        gs.generarListaPrescripcion();
+
         do {
             try {
                 System.out.println("1-FARMACEUTICO\n2-MÉDICO\n\n0-Salir");
@@ -30,13 +31,16 @@ public class Main {
                 endLoop = false;
                 switch (usuario) {
                     case 1:
+                        medGS.alertaStockMinimo();//ACTIVA de manera "automatica" un listado de los medicamentos por debajo del minimo para avisar al farmaceutico
+                        lotesGS.generarAlertaManual(); //ACTIVA de manera "automatica" cada vez que se inicia el menu del farmaceutico
                         do {
                             try {
                                 System.out.println("""
                                                    1-Medicamentos
                                                    2-Lotes
-                                                   3-Prescripciones
-   
+                                                   3-Revisar prescripcion
+                                                   4-Historial
+                                                   
                                                    0-Volver atrás""");
                                 System.out.print(">>");
                                 usuario = teclado.nextInt();
@@ -49,10 +53,10 @@ public class Main {
                                         break;
                                     case 3:
                                         menuPrescripcionFarmaceutico(teclado);
-                                        
+
                                         break;
                                     case 4:
-                                        
+                                        gs.leerHistorialPrescripcion();
                                         break;
                                     case 0:
                                         endLoop = true;
@@ -61,7 +65,7 @@ public class Main {
                                 System.out.println("Introduzca un tipo de valor numérico");
                                 teclado.nextLine();
                             }
-                            
+
                         } while (!endLoop);
                         break;
                     case 2:
@@ -81,7 +85,7 @@ public class Main {
             }
         } while (!endProgram);
     }
-    
+
     private static void menuMedicamento(Scanner teclado) {
         gestorMedicamentos medicamentoGS = new gestorMedicamentos();//Lista donde se guardan los medicamentos
         gestorLotes lotesGS = new gestorLotes();
@@ -97,7 +101,7 @@ public class Main {
                                    0-Volver atrás""");
                 System.out.print(">>");
                 usuario = teclado.nextInt();
-                
+
                 switch (usuario) {
                     case 1:
                         try {
@@ -113,9 +117,9 @@ public class Main {
                     case 3:
                         medicamentoGS.generarTreeSet();
                         Medicamento aux = medicamentoGS.buscarMedicamentoIterador(Menu.buscarMedicamento());
-                        if(aux != null){
-                        System.out.println("\nInfo del medicamento:\n" + aux.toString() + "Stock total del medicamento: " + lotesGS.stockTotal(aux.getCodigo()) + " cajas\n");
-                        }else{
+                        if (aux != null) {
+                            System.out.println("\nInfo del medicamento:\n" + aux.toString() + "Stock total del medicamento: " + lotesGS.stockTotal(aux.getCodigo()) + " cajas\n");
+                        } else {
                             System.out.println("\nNo existe ningun medicamento con ese Nombre/Codigo\n");
                         }
                         break;
@@ -127,8 +131,9 @@ public class Main {
                 teclado.nextLine();//Limpiar buffer
             }
         } while (!salirMenu);
-        
+
     }
+
     private static void menuLote(Scanner teclado) {
         gestorLotes lotesGS = new gestorLotes();
         boolean salirMenu = false;
@@ -145,7 +150,7 @@ public class Main {
                                    """);
                 System.out.print(">>");
                 usuario = teclado.nextInt();
-                
+
                 switch (usuario) {
                     case 1:
                         try {
@@ -160,47 +165,50 @@ public class Main {
                         break;
                     case 3:
                         //Metodo que devuelva la informacion de un lote en particular
-                        
+
                         break;
                     case 4:
                         lotesGS.generarAlertaManual();
                         break;
                     case 0:
                         salirMenu = true;
+
                 }
             } catch (InputMismatchException ex) {
                 System.out.println("Introduzca un valor de tipo numérico");
                 teclado.nextLine();//Limpiar buffer
             }
         } while (!salirMenu);
-        
+
     }
-    
+
     private static void menuPrescripcionFarmaceutico(Scanner teclado) {
         gestorPrescripcion gs = new gestorPrescripcion();
-        ArrayList<Prescripcion> listaNoRevisadas = gs.generarListaPrescripcion();
-        
-        if (listaNoRevisadas.isEmpty()) {
+        gs.generarListaPrescripcion();
+
+        if (gs.getPrescripcionNoRevisada().isEmpty()) {
             System.out.println("Ya no quedan mas prescripciones por revisar\n");
+
         } else {
             System.out.println("REVISANDO LA SIGUIENTE PRESCRIPCIÓN:\n");
-            System.out.println(listaNoRevisadas.getFirst().toString());
+            System.out.println(gs.getPrescripcionNoRevisada().getFirst().toString());
             System.out.println("\n");
             boolean aceptada = Menu.esCierto("¿Aceptas esta prescripción?");
             if (aceptada) {
                 System.out.println("Enviando prescripción...");
-                gs.prescripcionRevisada(listaNoRevisadas.getFirst());//Aqui vamos a comprobar si reune los requisitos para ser aceptada o no
-                listaNoRevisadas.removeFirst();//Eliminamos la prescripcion de la lista
-                gs.escribirArrayList(listaNoRevisadas);//Volvemos a escribir la lista en el archivo para que machaque la anterior y ya no exista la 1ª
+                gs.prescripcionRevisada(gs.getPrescripcionNoRevisada().getFirst());//Aqui vamos a comprobar si reune los requisitos para ser aceptada o no
+                gs.getPrescripcionNoRevisada().removeFirst();//Eliminamos la prescripcion de la lista
+                gs.escribirArrayList(gs.getPrescripcionNoRevisada());//Volvemos a escribir la lista en el archivo para que machaque la anterior y ya no exista la 1ª
             } else {
                 teclado.nextLine();
                 System.out.println("¿Alguna nota para el médico?");
                 String nota = teclado.nextLine();
-                System.out.println("Enviando mensaje...");
-                listaNoRevisadas.getFirst().setNotaFarmaceutico(nota);//Establecemos en la prescripcion una nota para el medico
+                System.out.println("Enviando mensaje...\n");
+                System.out.println("Mensaje enviado al correo del medico " + gs.getPrescripcionNoRevisada().getFirst().getMedico().getEmail() + "\n");
                 //Tenemos que enviarla a revisadas
-                listaNoRevisadas.removeFirst();//Eliminamos la prescripcion de la lista
-                gs.escribirArrayList(listaNoRevisadas);//Volvemos a escribir la lista en el archivo para que machaque la anterior y ya no exista la 1ª
+                gs.prescripcionRevisada(gs.getPrescripcionNoRevisada().getFirst());
+                gs.getPrescripcionNoRevisada().removeFirst();//Eliminamos la prescripcion de la lista
+                gs.escribirArrayList(gs.getPrescripcionNoRevisada());//Volvemos a escribir la lista en el archivo para que machaque la anterior y ya no exista la 1ª
             }
         }
     }
@@ -210,29 +218,28 @@ public class Main {
         int usuario = 0;
         Medico medico = null;
         medico = gestorMedico.encontrarMedico(Menu.addIdMedico());
-        
+
         do {
-            System.out.println("1-Crear prescripción\n2-Comprobar correo\n\n0-Volver atrás");
+            System.out.println("1-Crear prescripción\n\n0-Volver atrás");
             System.out.print(">>");
             usuario = teclado.nextInt();
-            
+
             switch (usuario) {
                 case 1:
                     try {
                         gestorPrescripcion.escribirPrescripcion(new Prescripcion(medico));
                     } catch (IdNoExistenteException ex) {
                         System.out.println("Error: " + ex.getMessage());
+                    }catch(ClassCastException cce){
+                        System.out.println("\nProblema con la prescripcion, informando al medico...\n");
                     }
                     break;
-                case 2:
-                    break;
-                
                 case 0:
                     salirMenu = true;
                     break;
             }
-            
+
         } while (!salirMenu);
-        
+
     }
 }

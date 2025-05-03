@@ -77,6 +77,13 @@ public class Menu {
         return respuesta;
     }
 
+    public static String buscarMedicamento() {
+        System.out.println("Nombre o codigo del medicamento que estas buscando");
+        System.out.print(">>");
+        String usuario = teclado.nextLine();
+        return usuario;
+    }
+
     /**
      * Este metodo sirve para decir la cantidad de cajas que estamos
      * introduciendo al objeto medicamento que estamos creando

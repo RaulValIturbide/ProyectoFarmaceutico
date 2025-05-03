@@ -49,14 +49,14 @@ public class Lote implements Comparable<Lote>, Serializable {
      */
     public Lote() throws MedicamentoInexistenteException {
         String nombre = Menu.addNombre();
-        int codigoTemp = retornarCodigoMedicamento(nombre); //variable que almacena de manera temporal el codigo mientras se estÃ¡ revisando
+        int codigoTemp = retornarCodigoMedicamento(nombre); //variable que almacena de manera temporal el codigo mientras se está revisando
         if (codigoTemp == -1) {
             throw new MedicamentoInexistenteException("Este medicamento no existe, cancelando la creación del lote...");
         } else {
             codigoMed = codigoTemp;
             codigoLote = gestorCodigoLote.generarCodLote();
             stockAhora = Menu.addStockAhora();
-            fechaCaducidad = Menu.addFecha("Vamos a introducir la fecha de caducidad","Cual es el dia en el que caduca?","Cual es el mes en el que caduca?", "Cual es el año en el que caduca?","No puede introducir un lote que caduque hoy o que ya lo haya hecho, asegurese de los datos e intentelo de nuevo:\n");
+            fechaCaducidad = Menu.addFecha("Vamos a introducir la fecha de caducidad", "Cual es el dia en el que caduca?", "Cual es el mes en el que caduca?", "Cual es el año en el que caduca?", "No puede introducir un lote que caduque hoy o que ya lo haya hecho, asegurese de los datos e intentelo de nuevo:\n");
         }
     }
 

@@ -42,6 +42,7 @@ public class gestorMedico {
             System.out.println("ERROR FATAL: en la creacion del medico");
         } finally {
             try {
+                salida.flush();
                 salida.close();
 
             } catch (IOException ex) {
@@ -69,7 +70,7 @@ public class gestorMedico {
         } catch (FileNotFoundException ex) {
             System.out.println("Ruta no encontrada");
         } catch (EOFException eo) {
-            System.out.println("Lista completa:\n");
+            System.out.println("");
         } catch (ClassNotFoundException cnf) {
             System.out.println("Error: fin de objetos");
         } catch (IOException io) {
@@ -125,10 +126,13 @@ public class gestorMedico {
         }
         return false;
     }
+
     /**
      * Este metodo sirve para buscar un medico y si lo encuentra lo devuelve
+     *
      * @param idMedico el id del medico por el que buscará
-     * @return devolverá el objeto medico si lo encuentra o null si no lo encuentra
+     * @return devolverá el objeto medico si lo encuentra o null si no lo
+     * encuentra
      */
     public static Medico encontrarMedico(int idMedico) {
         Medico medicoEncontrado = null;

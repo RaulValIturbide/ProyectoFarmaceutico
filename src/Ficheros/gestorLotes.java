@@ -45,6 +45,7 @@ public class gestorLotes {
         } finally {
             if (salida != null) {
                 try {
+                    salida.flush();
                     salida.close();
                 } catch (IOException ex) {
                     System.out.println("Fallo al intentar cerrar el flujo de salida del escritor de lotes");
@@ -86,6 +87,7 @@ public class gestorLotes {
         } finally {
             if (salida != null) {
                 try {
+                    salida.flush();
                     salida.close();
                 } catch (IOException ex) {
                     System.out.println("Error fatal al intentar cerrar el flujo de datos de salida de la escritura del treeset al restar el stock");
@@ -115,7 +117,7 @@ public class gestorLotes {
             } catch (FileNotFoundException ex) {
                 System.out.println("Ruta no encontrada");
             } catch (EOFException eo) {
-                System.out.println("Lista completa:\n");
+                //Saltará cuando se termine de leer
             } catch (ClassNotFoundException cnf) {
                 System.out.println("Error: fin de objetos");
             } catch (IOException io) {
@@ -175,7 +177,7 @@ public class gestorLotes {
         } catch (FileNotFoundException ex) {
 
         } catch (EOFException eo) {
-            System.out.println("");
+                //Saltará cuando se termine de leer
         } catch (ClassNotFoundException cnf) {
             System.out.println("Clase no encontrada");
         } catch (IOException io) {
@@ -191,20 +193,23 @@ public class gestorLotes {
         }
         return stockTotal;
     }
-    
+
     /**
-     * Metodo del demonio que sirve para, tomando un medicamento de referencia, buscar su lotes y restar la cantidad que se ha dado por la prescripción
-     * ya que el treeSet está ordenado por caducidad se eliminarán primero los lotes que más pronto esten por caducar respetando el FIFO
-     * y se usará un metodo complementario para reescribir el treeset en el archivo
+     * Metodo del demonio que sirve para, tomando un medicamento de referencia,
+     * buscar su lotes y restar la cantidad que se ha dado por la prescripción
+     * ya que el treeSet está ordenado por caducidad se eliminarán primero los
+     * lotes que más pronto esten por caducar respetando el FIFO y se usará un
+     * metodo complementario para reescribir el treeset en el archivo
+     *
      * @param m el medicamento que buscamos al que restarle los lotes
-     * @param cantidad  la cantidad que deseamos restar
+     * @param cantidad la cantidad que
      */
     public void restarStock(Medicamento m, int cantidad) {
         generarTreeSet();//Genera la lista para poder interactuar con ella
         Iterator<Lote> iterador = lista.iterator();
 
         int cantidadRestante = cantidad;
-        
+        boolean modificacionRealizada = false; // Para verificar si hicimos cambios
 
         while (iterador.hasNext() && cantidadRestante > 0) {
             Lote lote = iterador.next();
@@ -216,13 +221,20 @@ public class gestorLotes {
                 if (cantidadARestar > 0) {
                     lote.setStockAhora(stockDisponible - cantidadARestar);
                     cantidadRestante -= cantidadARestar;
-                   
+                    modificacionRealizada = true;
                 }
 
                 if (lote.getStockAhora() == 0) {
-                    iterador.remove(); // Solo eliminamos si el stock REALMENTE llegó a 0
+                    iterador.remove(); // Solo eliminamos si el stock que REALMENTE llegó a 0
                 }
             }
+        }
+
+        // Validamos que aún haya elementos antes de guardar para que no nos salga el error de que no existe lista como pasaba estos dias
+        if (modificacionRealizada && !lista.isEmpty()) {
+            escribirTreeSet(lista);
+        } else {
+            System.out.println("No se han realizado modificaciones o todos los lotes fueron eliminados por error.");
         }
     }
 
@@ -241,7 +253,6 @@ public class gestorLotes {
                 System.out.println("Peligro de caducar en menos de 30 dias para el lote: " + l.getCodigoLote() + "\n" + l.toString());
             }
         }
-
     }
 
 }

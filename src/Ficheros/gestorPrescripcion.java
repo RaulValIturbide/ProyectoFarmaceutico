@@ -11,6 +11,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.Serializable;
+import java.io.StreamCorruptedException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Random;
@@ -19,7 +21,7 @@ import java.util.Random;
  *
  * @author baske
  */
-public class gestorPrescripcion implements comiteFarmaceutico {
+public class gestorPrescripcion implements comiteFarmaceutico, Serializable {
 
     private static final String rutaCarpeta = "src/Inventario/Prescripciones";
     private static final String rutaArchivoNoRevisada = rutaCarpeta + "/porRevisar";
@@ -43,13 +45,17 @@ public class gestorPrescripcion implements comiteFarmaceutico {
         File archivo = new File(rutaArchivoNoRevisada);
         File carpeta = new File(rutaCarpeta);
         try {
-            if (!archivo.exists()) {
+            if(!carpeta.exists()){
                 carpeta.mkdirs();
+            }
+            if (archivo.length() == 0) {
                 salida = new ObjectOutputStream(new FileOutputStream(rutaArchivoNoRevisada));
                 salida.writeObject(p);
+                
             } else {
                 salida = new MiObjectOutputStream(new FileOutputStream(rutaArchivoNoRevisada, true));
                 salida.writeObject(p);
+                
             }
         } catch (IOException ex) {
             System.out.println("ERROR FATAL en la escritura del la prescripcion en el archivo");
@@ -58,7 +64,9 @@ public class gestorPrescripcion implements comiteFarmaceutico {
 
             if (salida != null) {
                 try {
+                    salida.flush();
                     salida.close();
+                     System.out.println("TIPO DE OBJETO ESCRITO:" + p.getClass().getName());
                 } catch (IOException ex) {
                     System.out.println("Error al intentar cerrar la salida del escritor de prescripciones");
                 }
@@ -66,7 +74,8 @@ public class gestorPrescripcion implements comiteFarmaceutico {
 
         }
     }
-        public static void escribirPrescripcionRevisada(Prescripcion p) {
+
+    public static void escribirPrescripcionRevisada(Prescripcion p) {
         ObjectOutputStream salida = null;
         File archivo = new File(rutaArchivoRevisada);
         File carpeta = new File(rutaCarpeta);
@@ -74,10 +83,14 @@ public class gestorPrescripcion implements comiteFarmaceutico {
             if (!archivo.exists()) {
                 carpeta.mkdirs();
                 salida = new ObjectOutputStream(new FileOutputStream(rutaArchivoRevisada));
+                if(p instanceof Prescripcion){
                 salida.writeObject(p);
+                }
             } else {
                 salida = new MiObjectOutputStream(new FileOutputStream(rutaArchivoRevisada, true));
+                if(p instanceof Prescripcion){
                 salida.writeObject(p);
+                }
             }
         } catch (IOException ex) {
             System.out.println("ERROR FATAL en la escritura del la prescripcion revisada en el archivo");
@@ -86,6 +99,7 @@ public class gestorPrescripcion implements comiteFarmaceutico {
 
             if (salida != null) {
                 try {
+                    salida.flush();
                     salida.close();
                 } catch (IOException ex) {
                     System.out.println("Error al intentar cerrar la salida del escritor de prescripciones revisadas");
@@ -94,17 +108,24 @@ public class gestorPrescripcion implements comiteFarmaceutico {
 
         }
     }
-    
-        /**
-         * Este metodo es el metodo principal en el que se ejecutaran el resto de metodos complementarios para saber que es lo que debemos hacer con la prescripción, puesto que hay
-         * muchas dudas cada caso se resuelve en su propio metodo complementario pero finaliza aquí donde se decide el camino, para saber cuales van a ser las bifurcaciones de la 
-         * prescripcion debemos saber 1º si hay suficiente stock, de no haberlo la prescripcion es eliminada directamente, 2º si hay alguna dosis en la prescripcion que necesite o no
-         * autorización, 3º si la necesita debemos saber si el comite acepta o no y 4º debemos saber si en la prescripción hay alguna dosis cronica que necesite enviar un mensaje al 
-         * correo de nuestro paciente
-         * @param p  la prescripción que estamos tratando
-         */
+
+    /**
+     * Este metodo es el metodo principal en el que se ejecutaran el resto de
+     * metodos complementarios para saber que es lo que debemos hacer con la
+     * prescripción, puesto que hay muchas dudas cada caso se resuelve en su
+     * propio metodo complementario pero finaliza aquí donde se decide el
+     * camino, para saber cuales van a ser las bifurcaciones de la prescripcion
+     * debemos saber 1º si hay suficiente stock, de no haberlo la prescripcion
+     * es eliminada directamente, 2º si hay alguna dosis en la prescripcion que
+     * necesite o no autorización, 3º si la necesita debemos saber si el comite
+     * acepta o no y 4º debemos saber si en la prescripción hay alguna dosis
+     * cronica que necesite enviar un mensaje al correo de nuestro paciente
+     *
+     * @param p la prescripción que estamos tratando
+     */
     public void prescripcionRevisada(Prescripcion p) {
         gestorLotes lotesGS = new gestorLotes();
+        gestorMedicamentos medGS = new gestorMedicamentos();
         ArrayList<Dosis> listaDosis = p.getReceta();//La lista con todas las dosis de la prescripcion
         //Primero comprobamos si hay suficiente stock de todos los medicamentos pedidos para aceptar la prescripcion
         if (suficienteStock(p)) {
@@ -172,19 +193,25 @@ public class gestorPrescripcion implements comiteFarmaceutico {
 
             }
             escribirPrescripcionRevisada(p);
+            medGS.alertaStockMinimo();//Comprobamos que todo este por encima del stock minimo
         } else {
             System.out.println("\nNo hay suficiente stock en uno de los medicamentos inscritos");
             System.out.println("Cancelando la prescripción e informando al médico...\n");
             System.out.println("Mensaje enviado al correo " + p.getMedico().getEmail() + "\n");
+            escribirPrescripcionRevisada(p);
         }
 
     }
-    
+
     /**
-     * Este metodo tiene como objetivo saber si existen cronicos en la prescripción para poder enviar los mensajes al paciente
-     * para ello usará un array donde se acumularán las dosis que son cronicas de donde podremos sacar la fecha donde se le debe informar
+     * Este metodo tiene como objetivo saber si existen cronicos en la
+     * prescripción para poder enviar los mensajes al paciente para ello usará
+     * un array donde se acumularán las dosis que son cronicas de donde podremos
+     * sacar la fecha donde se le debe informar
+     *
      * @param p la prescripción que estamos revisando
-     * @return nos devolverá null si no existen dosis cronicas o un array con las cronicas de existir una o varias
+     * @return nos devolverá null si no existen dosis cronicas o un array con
+     * las cronicas de existir una o varias
      */
     private ArrayList<Dosis> mensajeCronico(Prescripcion p) {
         ArrayList<Dosis> aux = p.getReceta();
@@ -201,11 +228,16 @@ public class gestorPrescripcion implements comiteFarmaceutico {
             return cronicos;
         }
     }
+
     /**
-     * Este metodo comprueba que los medicamentos de las dosis que el medico estça recetando tengan suficiente stock total para suplir con la demanda
-     * si algun medicamento no tiene suficiente stock para la dosis, se cancelará la prescripcion y devolverá false
+     * Este metodo comprueba que los medicamentos de las dosis que el medico
+     * estça recetando tengan suficiente stock total para suplir con la demanda
+     * si algun medicamento no tiene suficiente stock para la dosis, se
+     * cancelará la prescripcion y devolverá false
+     *
      * @param p la prescripcion que estamos analizando
-     * @return devolverá false si una dosis de la prescripcion es demasiado grande como para suplir el stock o true si está correcto
+     * @return devolverá false si una dosis de la prescripcion es demasiado
+     * grande como para suplir el stock o true si está correcto
      */
     private boolean suficienteStock(Prescripcion p) {
         ArrayList<Dosis> aux = p.getReceta();
@@ -215,12 +247,16 @@ public class gestorPrescripcion implements comiteFarmaceutico {
             if (d.getCantidad() > gs.stockTotal(d.getIdMed())) {
                 return false;
             }
-        } 
+        }
         return true;
     }
+
     /**
-     * Este metodo comprueba que los medicamentos introducidos en el arrayList de dosis de la prescripción necesitan o no autorización,
-     * para ello comprueban en un for each por cada medicamento si sus costes o restricciones son positivas
+     * Este metodo comprueba que los medicamentos introducidos en el arrayList
+     * de dosis de la prescripción necesitan o no autorización, para ello
+     * comprueban en un for each por cada medicamento si sus costes o
+     * restricciones son positivas
+     *
      * @param p la prescripción que estamos tratando
      * @return devolverá true si necesita autorización o false si no la necesita
      */
@@ -238,13 +274,17 @@ public class gestorPrescripcion implements comiteFarmaceutico {
 
     public ArrayList<Prescripcion> generarListaPrescripcion() {
         ObjectInputStream entrada = null;
-
-        try {
+        try {       
             entrada = new ObjectInputStream(new FileInputStream(rutaArchivoNoRevisada));
 
             while (true) {
-                Prescripcion aux = (Prescripcion) entrada.readObject();
+                try{
+                Object obj = entrada.readObject();
+                Prescripcion aux = (Prescripcion) obj;
                 addPrescripcionNoRevisada(aux);
+                }catch(ClassCastException ex){
+                    System.out.println("ERROR CON LA SERIALIZACIÓN, pidale al medico que vuelva a extender la receta");
+                }
             }
 
         } catch (FileNotFoundException ex) {
@@ -252,22 +292,22 @@ public class gestorPrescripcion implements comiteFarmaceutico {
         } catch (ClassNotFoundException cnf) {
             System.out.println("No se encuentra esta clase");
         } catch (EOFException eo) {
-            System.out.println("");
+        //Saltará cuando se termine de leer
         } catch (IOException ex) {
             System.out.println("ERROR FATAL");
             ex.printStackTrace();
-        }finally{
-            if(entrada != null){
-                try{
-                entrada.close();
-                }catch(IOException ex){
+        } finally {
+            if (entrada != null) {
+                try {
+                    entrada.close();
+                } catch (IOException ex) {
                     System.out.println("Error fatal intentando cerrar el flujo de datos ");
                     ex.printStackTrace();
                 }
             }
         }
 
-        return getPrescripcionNoRevisada();
+        return PrescripcionNoRevisada;
     }
 
     public void escribirArrayList(ArrayList<Prescripcion> lista) {
@@ -278,7 +318,7 @@ public class gestorPrescripcion implements comiteFarmaceutico {
             salida = new ObjectOutputStream(new FileOutputStream(rutaArchivoNoRevisada));
 
             for (Prescripcion p : lista) {
-                salida.writeObject(p);
+                escribirPrescripcion(p);
             }
             salida.flush();
         } catch (IOException ex) {
@@ -286,6 +326,7 @@ public class gestorPrescripcion implements comiteFarmaceutico {
         } finally {
             if (salida != null) {
                 try {
+                    salida.flush();
                     salida.close();
                 } catch (IOException e) {
                     System.out.println("Fallo al intentar cerrar el flijo de salida de escritura de prescripciones");
@@ -299,9 +340,65 @@ public class gestorPrescripcion implements comiteFarmaceutico {
             System.out.println(p.toString());
         }
     }
+    /**
+     * Este metodo lee el archivo que almacena las prescripciones ya gestionadas
+     * por el farmaceutico
+     */
+public void leerHistorialPrescripcion() {
+    File archivo = new File(rutaArchivoRevisada);
     
+    if (!archivo.exists()) {
+        System.out.println("\nAún no hay historial de prescripciones\n");
+        return; //  Evita ejecutar código innecesario si el archivo no existe
+    }
 
-    
+    ObjectInputStream entrada = null;
+    try {
+        entrada = new ObjectInputStream(new FileInputStream(rutaArchivoRevisada));
+
+        while (true) {
+            try {
+                Object objeto = entrada.readObject();
+
+                if (objeto instanceof Prescripcion) {
+                    Prescripcion aux = (Prescripcion) objeto;
+                    System.out.println("INFORME PRESCRIPCIÓN");
+                    System.out.println(aux.toString() + "\n");
+                } else {
+                    System.out.println("Informe corrupto, ignorando...");
+                }
+            } catch (ClassCastException e) {
+                System.out.println("Error ignorando...");
+            } catch (EOFException eo) {
+                System.out.println("Fin del historial");
+                break; // Salir del bucle cuando se llega al final del archivo
+            } catch (StreamCorruptedException sce) {
+                System.out.println("Bloque corrupto detectado, ignorando...");
+            }
+        }
+
+    } catch (FileNotFoundException ex) {
+        System.out.println("\nNo hay historial todavía.\n");
+    } catch (ClassNotFoundException cn) {
+        System.out.println("Clase no encontrada.");
+    } catch (IOException e) {
+        System.out.println("ERROR FATAL en el lector del historial");
+        
+    } finally {
+        if (entrada != null) {
+            try {
+                entrada.close();
+            } catch (IOException ex) {
+                System.out.println("FALLO al cerrar el flujo de lectura.");
+            }
+        }
+    }
+}
+
+
+
+
+
     @Override
     public boolean esAceptado(Prescripcion p) {
         Random random = new Random();
