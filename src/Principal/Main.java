@@ -22,6 +22,7 @@ public class Main {
         BBDD.crearBBDD();
         gestorPrescripcion gs = new gestorPrescripcion();
         gs.generarListaPrescripcion();
+        
 
         do {
             try {
@@ -133,7 +134,7 @@ public class Main {
         } while (!salirMenu);
 
     }
-
+   
     private static void menuLote(Scanner teclado) {
         gestorLotes lotesGS = new gestorLotes();
         boolean salirMenu = false;
@@ -164,8 +165,10 @@ public class Main {
                         lotesGS.mostrarLista();
                         break;
                     case 3:
+                        lotesGS.generarTreeSet();
+                        lotesGS.buscarLote();
                         //Metodo que devuelva la informacion de un lote en particular
-
+                         
                         break;
                     case 4:
                         lotesGS.generarAlertaManual();
